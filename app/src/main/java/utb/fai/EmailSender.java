@@ -10,6 +10,7 @@ public class EmailSender {
      * the exception is not handled in the constructor.
      */
     public EmailSender(String host, int port) throws UnknownHostException, IOException {
+        System.out.println("test");
 
     }
 
