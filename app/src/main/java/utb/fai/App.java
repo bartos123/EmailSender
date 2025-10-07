@@ -8,6 +8,7 @@ public class App {
             return;
         }
 
+        
         try {
             EmailSender sender = new EmailSender(args[0], Integer.parseInt(args[1]));
             
