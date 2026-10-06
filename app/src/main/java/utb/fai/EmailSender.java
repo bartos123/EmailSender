@@ -4,13 +4,19 @@ import java.net.*;
 import java.io.*;
 
 public class EmailSender {
-    /*
-     * Constructor opens Socket to host/port. If the Socket throws an exception
-     * during opening,
-     * the exception is not handled in the constructor.
-     */
-    public EmailSender(String host, int port) throws UnknownHostException, IOException {
 
+    private Socket socket;
+    private InputStream in;
+    private OutputStream out;
+    private byte[] buffer = new byte[1024];
+
+
+
+    public EmailSender(String host, int port) throws UnknownHostException, IOException {
+        socket = new Socket (host, port);
+        in = socket.getInputStream();
+        out = socket.getOutputStream();
+        in.read(buffer);
     }
 
     /*
@@ -20,13 +26,38 @@ public class EmailSender {
      * handled by this method.
      */
     public void send(String from, String to, String subject, String text) throws IOException {
-
+        sendRaw("HELO localhost\r\n");
+        sendRaw("MAIL FROM:" + formatEmail(from) + "\r\n");
+        sendRaw("RCPT TO:" + formatEmail(to)+ "\r\n");
+        sendRaw("DATA\r\n");
+        String message = "From: " + from + "\r\n"
+                + "To: " + to + "\r\n"
+                + "Subject: " + subject + "\r\n\r\n"
+                + text + "\r\n.\r\n";
+        sendRaw(message);
     }
+
 
     /*
      * Sends QUIT and closes the socket
      */
     public void close() {
+        try {
+            sendRaw("QUIT\r\n");
+            socket.close();
+        } catch (Exception e) {
+        }
+    }
 
+    private void sendRaw(String command) throws IOException {
+        out.write(command.getBytes());
+        out.flush();
+        in.read(buffer);
+    }
+    private String formatEmail(String email) {
+        if (email != null && email.startsWith("<") && email.endsWith(">")) {
+            return email;
+        }
+        return "<" + email + ">";
     }
 }
